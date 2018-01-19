@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+
+using RTS.controls;
+using RTS.math;
 
 namespace RTS
 {
@@ -11,11 +15,12 @@ namespace RTS
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        RTSMouse mMouse;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+			Content.RootDirectory = "Content";
         }
 
         /// <summary>
@@ -26,9 +31,18 @@ namespace RTS
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+			// TODO: Add your initialization logic here
+			var current_display_mode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+			tCoord native_dim = new tCoord( current_display_mode.Width, current_display_mode.Height );
 
-            base.Initialize();
+			graphics.IsFullScreen = true;
+			graphics.PreferredBackBufferWidth = native_dim.x;
+			graphics.PreferredBackBufferHeight = native_dim.y;
+			graphics.ApplyChanges();
+
+			mMouse = new RTSMouse( native_dim );
+
+			base.Initialize();
         }
 
         /// <summary>
@@ -63,6 +77,7 @@ namespace RTS
                 Exit();
 
             // TODO: Add your update logic here
+            mMouse.Update(1.0f / 60.0f);
 
             base.Update(gameTime);
         }
