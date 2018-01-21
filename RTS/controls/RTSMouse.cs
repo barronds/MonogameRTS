@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-using RTS.math;
+using RTS.RTSMath;
 
-namespace RTS.controls
+namespace RTS.Controls
 {
     class RTSMouse
     {

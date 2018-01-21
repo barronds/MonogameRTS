@@ -15,7 +15,7 @@ namespace RTS
 		[STAThread]
         static void Main()
         {
-			unit_tests.UnitTests.RunUnitTests();
+			UnitTests.Framework.RunUnitTests();
 
 			using( var game = new Game1())
                 game.Run();

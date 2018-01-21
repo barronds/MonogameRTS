@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using RTS.unit_tests;
+using RTS.UnitTests;
 
-namespace RTS.math
+namespace RTS.RTSMath
 {
 	struct tCoord
 	{
@@ -27,13 +27,13 @@ namespace RTS.math
 
 		public float getLength()
 		{
-			return (float)Math.Sqrt( this.x * this.x + this.y * this.y );
+			return (float)System.Math.Sqrt( this.x * this.x + this.y * this.y );
 		}
 
 		public tCoord clamp( tCoord min, tCoord max )
 		{
-			int clamped_x = Math.Max( Math.Min( max.x, this.x ), min.x );
-			int clamped_y = Math.Max( Math.Min( max.y, this.y ), min.y );
+			int clamped_x = System.Math.Max( System.Math.Min( max.x, this.x ), min.x );
+			int clamped_y = System.Math.Max( System.Math.Min( max.y, this.y ), min.y );
 			return new tCoord( clamped_x, clamped_y );
 		}
 
@@ -64,7 +64,7 @@ namespace RTS.math
 
 		public static void unitTest()
 		{
-			UnitTests.Assert( false, "hello" );
+			//Framework.Assert( false, "hello" );
 		}
 	}
 }

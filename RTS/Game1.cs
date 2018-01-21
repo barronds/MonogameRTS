@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 
-using RTS.controls;
-using RTS.math;
+using RTS.Controls;
+using RTS.RTSMath;
 
 namespace RTS
 {
