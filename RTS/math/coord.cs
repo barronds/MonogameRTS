@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using RTS.unit_tests;
 
 namespace RTS.math
 {
@@ -58,6 +60,11 @@ namespace RTS.math
 		public static tCoord operator-( tCoord a, tCoord b )
 		{
 			return new tCoord( a.x - b.x, a.y - b.y );
+		}
+
+		public static void unitTest()
+		{
+			UnitTests.Assert( false, "hello" );
 		}
 	}
 }

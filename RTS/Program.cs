@@ -3,18 +3,21 @@
 namespace RTS
 {
 #if WINDOWS || LINUX
-    /// <summary>
-    /// The main class.
-    /// </summary>
-    public static class Program
+	/// <summary>
+	/// The main class.
+	/// </summary>
+
+	public static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
+		/// <summary>
+		/// The main entry point for the application.
+		/// </summary>
+		[STAThread]
         static void Main()
         {
-            using (var game = new Game1())
+			unit_tests.UnitTests.RunUnitTests();
+
+			using( var game = new Game1())
                 game.Run();
         }
     }
