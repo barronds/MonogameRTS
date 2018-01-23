@@ -17,9 +17,22 @@ namespace RTS.UnitTests
 		{
 			if( !b )
 			{
-				// breakpoint here
-				Debug.Assert( b, msg );
+				Breakpoint( msg );
 			}
+		}
+
+		public static void AssertVal( double test, double target, double tol, string msg = null )
+		{
+			if( Math.Abs( test - target ) > tol )
+			{
+				Breakpoint( msg );
+			}
+		}
+
+		private static void Breakpoint( string msg )
+		{
+			// breakpoint here
+			Debug.Assert( false, msg );
 		}
 
 		private static void ExecuteTests()
