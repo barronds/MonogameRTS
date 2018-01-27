@@ -5,6 +5,7 @@ using System;
 
 using RTS.Controls;
 using RTS.RTSMath;
+using RTS.Render;
 
 namespace RTS
 {
@@ -13,13 +14,14 @@ namespace RTS
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        RTSMouse mMouse;
+        GraphicsDeviceManager	mGraphics;
+        SpriteBatch				mSpriteBatch;
+        RTSMouse				mMouse;
+		SimpleDraw              mSimpleDraw;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            mGraphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
         }
 
@@ -35,12 +37,13 @@ namespace RTS
 			var current_display_mode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
 			tCoord native_dim = new tCoord( current_display_mode.Width, current_display_mode.Height );
 
-			graphics.IsFullScreen = true;
-			graphics.PreferredBackBufferWidth = native_dim.x;
-			graphics.PreferredBackBufferHeight = native_dim.y;
-			graphics.ApplyChanges();
+			mGraphics.IsFullScreen = false; // true;
+			mGraphics.PreferredBackBufferWidth = native_dim.x;
+			mGraphics.PreferredBackBufferHeight = native_dim.y;
+			mGraphics.ApplyChanges();
 
-			mMouse = new RTSMouse( native_dim );
+			mSimpleDraw = new SimpleDraw( GraphicsDevice );
+			mMouse = new RTSMouse( native_dim, mSimpleDraw );
 
 			base.Initialize();
         }
@@ -52,7 +55,7 @@ namespace RTS
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            mSpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -71,15 +74,15 @@ namespace RTS
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
+        protected override void Update(GameTime game_time)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
-            mMouse.Update(1.0f / 60.0f);
+            mMouse.Update( game_time );
 
-            base.Update(gameTime);
+            base.Update( game_time );
         }
 
         /// <summary>
@@ -90,7 +93,11 @@ namespace RTS
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+			// TODO: Add your drawing code here
+			mMouse.Render( gameTime );
+
+			// simple draw render call for all systems above that might use it.
+			mSimpleDraw.DrawAllPrimitives();
 
             base.Draw(gameTime);
         }

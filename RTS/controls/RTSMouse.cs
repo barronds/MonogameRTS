@@ -7,19 +7,22 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using RTS.RTSMath;
+using RTS.Render;
 
 namespace RTS.Controls
 {
     class RTSMouse
     {
         tCoord mScreenDim;
+		SimpleDraw mSimpleDraw;
 
-        public RTSMouse( tCoord screen_dim )
+        public RTSMouse( tCoord screen_dim, SimpleDraw simple_draw )
         {
 			mScreenDim = screen_dim;
+			mSimpleDraw = simple_draw;
 		}
 
-        public void Update( float dt )
+        public void Update( GameTime game_time )
         {
             MouseState state = Mouse.GetState();
 
@@ -31,5 +34,11 @@ namespace RTS.Controls
 
             Console.WriteLine( pos_value + " " + button_value);
         }
+
+		public void Render( GameTime game_time )
+		{
+			// need concept of a camera here to understand what world pos to use
+			//mSimpleDraw.DrawLine( )
+		}
     }
 }
