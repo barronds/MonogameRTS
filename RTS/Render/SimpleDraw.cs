@@ -43,13 +43,15 @@ namespace RTS.Render
 				return;
 			}
 
-			int base_vert = 2 * mNumLines;
-			VertexPositionColor start = mLines[ base_vert ];
-			VertexPositionColor end = mLines[ base_vert + 1 ];
-			start.Color = start_color;
+			VertexPositionColor start, end;
 			start.Position = start_pos;
-			end.Color = end_color;
+			start.Color = start_color;
 			end.Position = end_pos;
+			end.Color = end_color;
+
+			int start_vert = 2 * mNumLines;
+			mLines[ start_vert ] = start;
+			mLines[ start_vert + 1 ] = end;
 			++mNumLines;
 		}
 

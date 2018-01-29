@@ -15,11 +15,11 @@ namespace RTS
     public class Game1 : Game
     {
         GraphicsDeviceManager	mGraphics;
-        SpriteBatch				mSpriteBatch;
+		BasicEffect             mBasicEffect;
         RTSMouse				mMouse;
 		SimpleDraw              mSimpleDraw;
 
-        public Game1()
+		public Game1()
         {
             mGraphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -54,11 +54,14 @@ namespace RTS
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            mSpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
-        }
+			mBasicEffect = new BasicEffect( GraphicsDevice );
+			mBasicEffect.World = Matrix.Identity;           
+			mBasicEffect.View = Matrix.CreateLookAt( new Vector3( 0, 0, 1f ), new Vector3( 0, 0, 0 ), new Vector3( 0, 1f, 0 ) );
+			float aspect = (float)(mGraphics.PreferredBackBufferHeight) / mGraphics.PreferredBackBufferWidth;
+			float viewport_scale = 10f;
+			mBasicEffect.Projection = Matrix.CreateOrthographicOffCenter( -viewport_scale, viewport_scale, -viewport_scale * aspect, viewport_scale * aspect, 0f, 2f );
+			// TODO: use this.Content to load your game content here
+		}
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -93,13 +96,24 @@ namespace RTS
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			// TODO: Add your drawing code here
+			// simple draw only clients
 			mMouse.Render( gameTime );
 
-			// simple draw render call for all systems above that might use it.
-			mSimpleDraw.DrawAllPrimitives();
+			EffectTechnique effectTechnique = mBasicEffect.Techniques[0];
+			EffectPassCollection effectPassCollection = effectTechnique.Passes;
 
-            base.Draw(gameTime);
-        }
-    }
+			foreach( EffectPass pass in effectPassCollection )
+			{
+				// hopefully only one pass
+				pass.Apply();
+
+				// actually render simple draw stuff.  possible layers needed.
+				mSimpleDraw.DrawAllPrimitives();
+
+				// render clients who do their own rendering.  they should probably have pre-renders like simple draw, especially if there is more than one pass.
+			}
+
+			base.Draw( gameTime );
+		}
+	}
 }

@@ -37,8 +37,10 @@ namespace RTS.Controls
 
 		public void Render( GameTime game_time )
 		{
-			// need concept of a camera here to understand what world pos to use
-			//mSimpleDraw.DrawLine( )
+			Vector3 start = new Vector3( -1f, -1f, -1f ) * 2f;
+			Vector3 end = -start;
+			Color color = Color.White;
+			mSimpleDraw.DrawLine( start, end, color, color );
 		}
     }
 }
