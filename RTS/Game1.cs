@@ -15,14 +15,20 @@ namespace RTS
     public class Game1 : Game
     {
         GraphicsDeviceManager	mGraphics;
-		BasicEffect             mBasicEffect;
-        RTSMouse				mMouse;
-		SimpleDraw              mSimpleDraw;
+		BasicEffect             mBasicEffect_World;
+		BasicEffect             mBasicEffect_Screen;
+		SimpleDraw              mSimpleDraw_World;
+		SimpleDraw              mSimpleDraw_Screen;
+		RTSMouse                mMouse;
+		float                   mCamDrift, mCamStartX, mCamStartY;
 
 		public Game1()
         {
             mGraphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
+			mCamDrift = 0.1f;
+			mCamStartX = 6.0f;
+			mCamStartY = 4.0f;
         }
 
         /// <summary>
@@ -37,13 +43,15 @@ namespace RTS
 			var current_display_mode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
 			tCoord native_dim = new tCoord( current_display_mode.Width, current_display_mode.Height );
 
-			mGraphics.IsFullScreen = false; // true;
+			mGraphics.IsFullScreen = false;
 			mGraphics.PreferredBackBufferWidth = native_dim.x;
 			mGraphics.PreferredBackBufferHeight = native_dim.y;
 			mGraphics.ApplyChanges();
 
-			mSimpleDraw = new SimpleDraw( GraphicsDevice );
-			mMouse = new RTSMouse( native_dim, mSimpleDraw );
+			mSimpleDraw_World = new SimpleDraw( GraphicsDevice );
+			mSimpleDraw_Screen = new SimpleDraw( GraphicsDevice );
+
+			mMouse = new RTSMouse( native_dim, mSimpleDraw_World, mSimpleDraw_Screen );
 
 			base.Initialize();
         }
@@ -54,20 +62,28 @@ namespace RTS
         /// </summary>
         protected override void LoadContent()
         {
-			mBasicEffect = new BasicEffect( GraphicsDevice );
-			mBasicEffect.World = Matrix.Identity;           
-			mBasicEffect.View = Matrix.CreateLookAt( new Vector3( 0, 0, 1f ), new Vector3( 0, 0, 0 ), new Vector3( 0, 1f, 0 ) );
+			// world space rendering setup
+			mBasicEffect_World = new BasicEffect( GraphicsDevice );
+			mBasicEffect_World.World = Matrix.Identity;           
+			mBasicEffect_World.View = Matrix.CreateLookAt( new Vector3( mCamStartX, mCamStartY, 1f ), new Vector3( mCamStartX, mCamStartY, 0f ), new Vector3( 0f, 1f, 0f ) );
 			float aspect = (float)(mGraphics.PreferredBackBufferHeight) / mGraphics.PreferredBackBufferWidth;
 			float viewport_scale = 10f;
-			mBasicEffect.Projection = Matrix.CreateOrthographicOffCenter( -viewport_scale, viewport_scale, -viewport_scale * aspect, viewport_scale * aspect, 0f, 2f );
+			mBasicEffect_World.Projection = Matrix.CreateOrthographicOffCenter( -viewport_scale, viewport_scale, -viewport_scale * aspect, viewport_scale * aspect, 0f, 2f );
+
+			// screen space rendering setup
+			mBasicEffect_Screen = new BasicEffect( GraphicsDevice );
+			mBasicEffect_Screen.World = Matrix.Identity;
+			mBasicEffect_Screen.View = Matrix.CreateLookAt( new Vector3( 0f, 0f, 1f ), new Vector3( 0f, 0f, 0f ), new Vector3( 0f, 1f, 0f ) );
+			mBasicEffect_Screen.Projection = Matrix.CreateOrthographicOffCenter( 0, mGraphics.PreferredBackBufferWidth, mGraphics.PreferredBackBufferHeight, 0, 0f, 2f );
+			
 			// TODO: use this.Content to load your game content here
 		}
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
-        protected override void UnloadContent()
+		/// <summary>
+		/// UnloadContent will be called once per game and is the place to unload
+		/// game-specific content.
+		/// </summary>
+		protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
@@ -79,7 +95,12 @@ namespace RTS
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime game_time)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+			//System.Console.WriteLine( "update " + game_time.ElapsedGameTime.ToString() );
+
+			float dx = mCamDrift * (game_time.TotalGameTime.Seconds + (game_time.TotalGameTime.Milliseconds) / 1000f);
+			mBasicEffect_World.View = Matrix.CreateLookAt( new Vector3( mCamStartX + dx, mCamStartY, 1f ), new Vector3( mCamStartX + dx, mCamStartY, 0f ), new Vector3( 0f, 1f, 0f ) );
+
+			if( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
@@ -92,15 +113,42 @@ namespace RTS
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
+        protected override void Draw(GameTime game_time)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+			//System.Console.WriteLine( "draw " + game_time.ElapsedGameTime.ToString() );
+
+			GraphicsDevice.Clear(Color.CornflowerBlue);
+
+			RasterizerState rasterizerState = new RasterizerState();
+			rasterizerState.CullMode = CullMode.None;
+			GraphicsDevice.RasterizerState = rasterizerState;
 
 			// simple draw only clients
-			mMouse.Render( gameTime );
+			mMouse.RenderWorld( game_time );
+			mMouse.RenderScreen( game_time );
 
-			EffectTechnique effectTechnique = mBasicEffect.Techniques[0];
+			// simple draw world
+			mBasicEffect_World.VertexColorEnabled = true;
+			EffectTechnique effectTechnique = mBasicEffect_World.Techniques[0];
 			EffectPassCollection effectPassCollection = effectTechnique.Passes;
+
+			
+			foreach( EffectPass pass in effectPassCollection )
+			{
+				// hopefully only one pass
+				pass.Apply();
+
+				// actually render simple draw stuff.  possible layers needed.
+				mSimpleDraw_World.DrawAllPrimitives();
+
+				// render clients who do their own rendering.  they should probably have pre-renders like simple draw, especially if there is more than one pass.
+			}
+
+
+			// simple draw screen
+			mBasicEffect_Screen.VertexColorEnabled = true;
+			effectTechnique = mBasicEffect_Screen.Techniques[0];
+			effectPassCollection = effectTechnique.Passes;
 
 			foreach( EffectPass pass in effectPassCollection )
 			{
@@ -108,12 +156,13 @@ namespace RTS
 				pass.Apply();
 
 				// actually render simple draw stuff.  possible layers needed.
-				mSimpleDraw.DrawAllPrimitives();
+				mSimpleDraw_Screen.DrawAllPrimitives();
 
 				// render clients who do their own rendering.  they should probably have pre-renders like simple draw, especially if there is more than one pass.
 			}
+			
 
-			base.Draw( gameTime );
+			base.Draw( game_time );
 		}
 	}
 }

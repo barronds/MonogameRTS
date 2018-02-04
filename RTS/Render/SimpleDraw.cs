@@ -21,7 +21,7 @@ namespace RTS.Render
 			}
 		}
 
-		const int				kMaxLines = 1024;
+		const int				kMaxLines = 10;
 		int						mNumLines;
 		VertexPositionColor []	mLines;
 
@@ -43,11 +43,8 @@ namespace RTS.Render
 				return;
 			}
 
-			VertexPositionColor start, end;
-			start.Position = start_pos;
-			start.Color = start_color;
-			end.Position = end_pos;
-			end.Color = end_color;
+			VertexPositionColor start = new VertexPositionColor( start_pos, start_color );
+			VertexPositionColor end = new VertexPositionColor( end_pos, end_color );
 
 			int start_vert = 2 * mNumLines;
 			mLines[ start_vert ] = start;

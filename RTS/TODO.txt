@@ -1,0 +1,5 @@
+figure out white primitive problem:
+- try other primitives like index vertex buffers example
+- try using index vertex buffers
+- already tried setting rasterizer state, and enabling colors
+- try rendering lines in the index vertex buffers project

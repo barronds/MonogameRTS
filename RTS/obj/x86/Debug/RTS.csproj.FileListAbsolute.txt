@@ -20,4 +20,3 @@ D:\Documents\programs\Monogame\RTS\RTS\bin\Windows\x86\Debug\SharpDX.XInput.xml
 D:\Documents\programs\Monogame\RTS\RTS\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 D:\Documents\programs\Monogame\RTS\RTS\obj\x86\Debug\RTS.exe
 D:\Documents\programs\Monogame\RTS\RTS\obj\x86\Debug\RTS.pdb
-D:\Documents\programs\Monogame\RTS\RTS\obj\x86\Debug\RTS.csprojResolveAssemblyReference.cache
